@@ -10,7 +10,7 @@ fn find_in_path(c: &str) {
     for path in paths {
         let full_path: std::path::PathBuf = path.join(c);
         if full_path.exists() && full_path.is_executable(){
-            println!("{} is {}", c.trim(), path.display());
+            println!("{} is {}", c.trim(), full_path.display());
             return;
         }
     }
