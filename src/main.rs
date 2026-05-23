@@ -5,7 +5,7 @@ fn command_not_built_in(c: &str) {
     if which::which(c.trim()).is_ok() {
         println!("{}: is a shell builtin", c.trim());
     } else {
-        println!("{}: command not found", c.trim());
+        println!("{}: not found", c.trim());
     }
     
 }
