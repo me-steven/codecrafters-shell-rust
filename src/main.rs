@@ -24,7 +24,7 @@ fn command_type(c: String) {
         "type" => println!("{} is a shell builtin", given),
         "echo" => println!("{} is a shell builtin", given),
         "exit" => println!("{} is a shell builtin", given), 
-        _ => println!("{}: not found", given.trim())
+        _ => find_in_path(given)
     }
 }
 
