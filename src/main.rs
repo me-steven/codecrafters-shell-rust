@@ -2,8 +2,10 @@
 use std::io::{self, Write};
 
 fn find_in_path(c: &str) {
-    if which::which(c.trim()).is_ok() {
-        println!("{}: is a shell builtin", c.trim());
+    let key = std::env::var(c.trim());
+
+    if key.is_ok() {
+        println!("command exists")
     } else {
         println!("{}: not found", c.trim());
     }
@@ -39,7 +41,6 @@ fn main() {
             "type" => command_type(command),
             "echo" => command_echo(command),
             "exit" => break,
-            // _ => command_does_not_exists(command)
             _ => command_does_not_exists(command)
         }
     }
