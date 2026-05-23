@@ -2,13 +2,17 @@
 use std::io::{self, Write};
 
 fn find_in_path(c: &str) {
-    let key = std::env::var(c.trim());
+    let binding = std::env::var("PATH").unwrap();
+    let paths = std::env::split_paths(binding.as_str());
 
-    if key.is_ok() {
-        println!("command exists")
-    } else {
-        println!("{}: not found", c.trim());
+    for path in paths {
+        if path.join(c).exists() {
+            println!("exists");
+            return;
+        }
     }
+
+    println!("{}: not found", c.trim());
 }
 
 fn command_does_not_exists(c: String) {
