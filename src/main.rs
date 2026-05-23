@@ -7,7 +7,8 @@ fn main() {
         print!("$ ");
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut command).unwrap();
-        match command {
+        match command.as_str().trim() {
+            "exit" => break,
             _ => println!("{}: command not found", command.trim())
         }
     }
