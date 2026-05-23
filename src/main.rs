@@ -1,13 +1,16 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
-fn command_not_built_in(c: &str) {
+fn find_in_path(c: &str) {
     if which::which(c.trim()).is_ok() {
         println!("{}: is a shell builtin", c.trim());
     } else {
         println!("{}: not found", c.trim());
     }
-    
+}
+
+fn command_does_not_exists(c: String) {
+    println!("{}: command not found", c.trim());
 }
 
 fn command_echo(c: String) {
@@ -36,7 +39,8 @@ fn main() {
             "type" => command_type(command),
             "echo" => command_echo(command),
             "exit" => break,
-            _ => command_not_built_in(command.trim())
+            // _ => command_does_not_exists(command)
+            _ => command_does_not_exists(command)
         }
     }
 }
