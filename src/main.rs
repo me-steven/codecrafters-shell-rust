@@ -8,7 +8,7 @@ fn main() {
         io::stdout().flush().unwrap();
         io::stdin().read_line(&mut command).unwrap();
         match command.as_str().split_whitespace().next().unwrap_or("") {
-            "echo" => println!("{}", &command[5..]),
+            "echo" => print!("{}", &command[5..]),
             "exit" => break,
             _ => println!("{}: command not found", command.trim())
         }
