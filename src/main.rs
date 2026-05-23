@@ -1,18 +1,17 @@
 #[allow(unused_imports)]
 use std::io::{self, Write};
 
+use is_executable::IsExecutable;
+
 fn find_in_path(c: &str) {
     let binding: String = std::env::var("PATH").unwrap();
     let paths: std::env::SplitPaths<'_> = std::env::split_paths(binding.as_str());
 
     for path in paths {
         let full_path: std::path::PathBuf = path.join(c);
-        if full_path.exists() {
-            let metadata = full_path.metadata();
-            let is_executable = metadata.unwrap().permissions().mode() & 0o111 != 0;
-            if is_executable {
-                println!("{} is {}", c.trim(), path.display());
-                return;
+        if full_path.exists() && full_path.is_executable(){
+            println!("{} is {}", c.trim(), path.display());
+            return;
         }
     }
 
