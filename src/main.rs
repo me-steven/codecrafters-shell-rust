@@ -2,13 +2,17 @@
 use std::io::{self, Write};
 
 fn find_in_path(c: &str) {
-    let binding = std::env::var("PATH").unwrap();
-    let paths = std::env::split_paths(binding.as_str());
+    let binding: String = std::env::var("PATH").unwrap();
+    let paths: std::env::SplitPaths<'_> = std::env::split_paths(binding.as_str());
 
     for path in paths {
-        if path.join(c).exists() {
-            println!("exists");
-            return;
+        let full_path: std::path::PathBuf = path.join(c);
+        if full_path.exists() {
+            let metadata = full_path.metadata();
+            let is_executable = metadata.unwrap().permissions().mode() & 0o111 != 0;
+            if is_executable {
+                println!("{} is {}", c.trim(), path.display());
+                return;
         }
     }
 
