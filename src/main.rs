@@ -39,14 +39,12 @@ fn find_path(c: &str) -> Option<String> {
 }
 
 fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
-    let c = match args.next() {
-        Some(cmd) => cmd,
-        None => return,
-    };
+    let tokens: Vec<&str> = args.collect();
+    let c = tokens[0];
 
     let returned_lookup = find_path(c);
 
-    let full_path = match returned_lookup {
+    let _full_path = match returned_lookup {
         Some(path) => path,
         None => {
             println!("{}: command not found", c);
@@ -92,23 +90,23 @@ fn command_echo(args: &mut dyn Iterator<Item = &str>) -> bool{
 }
 
 fn command_type(args: &mut dyn Iterator<Item = &str>) -> bool{
-    let output = args.next();
+    let command = args.next();
     
-    if output == None {
+    if command == None {
         return false;
     }
 
-    let unwrapped = output.unwrap();
+    let command_str = command.unwrap();
 
 
-    if !search_commands(unwrapped).is_none() {
-        println!("{} is a shell builtin", unwrapped);
+    if !search_commands(command_str).is_none() {
+        println!("{} is a shell builtin", command_str);
         return true;
-    } else if let Some(lookup) = find_path(unwrapped) {
-        println!("{} is {}", unwrapped, lookup);
+    } else if let Some(lookup) = find_path(command_str) {
+        println!("{} is {}", command_str, lookup);
         return false;
     } else {
-        println!("{}: not found", unwrapped);
+        println!("{}: not found", command_str);
         return false;
     }
 }
@@ -125,21 +123,24 @@ fn main() {
         io::stdin().read_line(&mut input).unwrap();
 
         let mut components: std::str::SplitWhitespace<'_>  = input.trim().split_whitespace();
-        let command: String = components.clone().next().unwrap_or("").to_owned();
+        let tokens: Vec<&str> = components.collect();
 
-        let returned_commands = search_commands(&command); 
+        if tokens.is_empty() {
+            continue;
+        }
+
+        let command_str = tokens[0];
+        let returned_commands = search_commands(command_str); 
         
         match returned_commands {
             Some((_name, func)) => {
-                func(&mut components);
-                println!();
+                let mut args = tokens[1..].iter().map(|s| *s);
+                func(&mut args);
             }
 
             None => {
-                if command.is_empty() {
-                    continue;
-                }
-                command_not_found(&mut components);
+                let mut args = tokens.iter().map(|s| *s);
+                command_not_found(&mut args);
             }
         }
     }
