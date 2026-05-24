@@ -123,7 +123,7 @@ fn main() {
         io::stdin().read_line(&mut input).unwrap();
 
         let mut components: std::str::SplitWhitespace<'_>  = input.trim().split_whitespace();
-        let command: String = components.next().unwrap_or("").to_owned();
+        let command: String = components.clone().next().unwrap_or("").to_owned();
 
         let returned_commands = search_commands(&command); 
         
@@ -133,6 +133,9 @@ fn main() {
             }
 
             None => {
+                if command.is_empty() {
+                    continue;
+                }
                 command_not_found(&mut components);
             }
         }
