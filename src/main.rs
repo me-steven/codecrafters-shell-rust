@@ -62,7 +62,7 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
     } else {
         Command::new(&full_path)
         .arg(c)
-        .args(args)
+        .args(args.next())
         .status()
         .expect("Failed to execute command");
     }
