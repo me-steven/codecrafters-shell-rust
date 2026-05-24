@@ -40,30 +40,24 @@ fn find_path(c: &str) -> Option<String> {
 }
 
 fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
-    let mut c = args.next();
+    let c = match args.next() {
+        Some(cmd) => cmd,
+        None => return,
+    };
 
-    let returned_lookup = find_path(c.unwrap());
+    let returned_lookup = find_path(c);
 
-    if returned_lookup.is_none() {
-        println!("{}: command not found", c.unwrap());
-        return
-    }
-
-    let mut execute_string: String = String::new();
-
-    loop {
-        if c.is_none() {
-            break;
+    let full_path = match returned_lookup {
+        Some(path) => path,
+        None => {
+            println!("{}: command not found", c);
+            return;
         }
-
-        execute_string.push_str(c.unwrap());
-        execute_string.push_str(" ");
-
-        c = args.next();
-    }
+    };
  
-    Command::new(execute_string.trim())
-    .output()
+    Command::new(&full_path)
+    .args(args)
+    .status()
     .expect("Failed to execute command");
 }
 
@@ -130,6 +124,7 @@ fn main() {
         match returned_commands {
             Some((_name, func)) => {
                 func(&mut components);
+                println!();
             }
 
             None => {
