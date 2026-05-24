@@ -46,6 +46,8 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
 
     let returned_lookup = find_path(c);
 
+    args.next();
+
     let full_path = match returned_lookup {
         Some(path) => path,
         None => {
