@@ -3,7 +3,6 @@ use std::env;
 use std::io::{self, Write};
 use is_executable::IsExecutable;
 use std::process::Command;
-use std::os::unix::process::CommandExt;
 
 type CommandFn = fn(args: &mut dyn Iterator<Item = &str>) -> bool;
 
@@ -43,27 +42,16 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
     let tokens: Vec<&str> = args.collect();
     let c = tokens[0];
 
-    let full_path = match find_path(c) {
-        Some(path) => path,
-        None => {
-            println!("{}: command not found", c);
-            return;
-        }
-    };
+    if find_path(c).is_none() {
+        println!("{}: command not found", c);
+        return;
+    }
 
-    // if cfg!(windows) {
-        Command::new(&full_path)
-        .arg(c)
-        .args(&tokens[1..])
-        .status()
-        .expect("Failed to execute command");
-    // } else {
-    //     Command::new(&full_path)
-    //     .arg(c)
-    //     .args(args)
-    //     .status()
-    //     .expect("Failed to execute command");
-    // }
+    Command::new(c)
+    .args(&tokens[1..])
+    .status()
+    .expect("Failed to execute command");
+
 
 }
 
