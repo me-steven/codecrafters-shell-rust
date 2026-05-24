@@ -4,7 +4,6 @@ use std::io::{self, Write};
 use is_executable::IsExecutable;
 use std::process::Command;
 
-
 type CommandFn = fn(args: &mut dyn Iterator<Item = &str>) -> bool;
 
 const COMMAND_MAP: [(&str, CommandFn); 3] = [
@@ -54,12 +53,23 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
             return;
         }
     };
- 
+
+    let parent_dir = std::path::Path::new(&full_path).parent().unwrap();
+    let current_path  = std::env::var_os("PATH").unwrap_or_default();
+
+    let mut new_path = std::env::join_paths(std::iter::once(parent_dir.to_path_buf())).unwrap();
+
+    let sep = if cfg!(windows) {";"} else {":"};
+    let mut combined_path = new_path.into_string().unwrap();
+    combined_path.push_str(sep);
+    combined_path.push_str(&current_path.into_string().unwrap());
+
     Command::new(&full_path)
-    .arg0(c)
+    .env("PATH", combined_path)
     .args(args)
     .status()
     .expect("Failed to execute command");
+
 }
 
 fn command_exit(_args: &mut dyn Iterator<Item = &str>) -> bool{
