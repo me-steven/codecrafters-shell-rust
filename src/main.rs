@@ -55,7 +55,7 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
     };
 
     // if cfg!(windows) {
-        Command::new(&full_path)
+        Command::new(c)
         .args(args)
         .status()
         .expect("Failed to execute command");
