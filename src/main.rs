@@ -45,7 +45,7 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
     let returned_lookup = find_path(c.unwrap());
 
     if returned_lookup.is_none() {
-        println!("{}: command not found", returned_lookup.unwrap());
+        println!("{}: command not found", c.unwrap());
         return
     }
 
