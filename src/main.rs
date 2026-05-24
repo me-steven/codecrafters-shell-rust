@@ -46,8 +46,6 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
 
     let returned_lookup = find_path(c);
 
-    args.next();
-
     let full_path = match returned_lookup {
         Some(path) => path,
         None => {
@@ -56,8 +54,7 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
         }
     };
 
-    Command::new(&full_path)
-    .arg(c)
+    Command::new(c)
     .args(args)
     .status()
     .expect("Failed to execute command");
