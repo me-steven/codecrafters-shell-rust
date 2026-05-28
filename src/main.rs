@@ -6,9 +6,10 @@ use std::process::Command;
 
 type CommandFn = fn(args: &mut dyn Iterator<Item = &str>) -> bool;
 
-const COMMAND_MAP: [(&str, CommandFn); 3] = [
+const COMMAND_MAP: [(&str, CommandFn); 4] = [
     ("type", command_type),
     ("echo", command_echo),
+    ("pwd", command_pwd),
     ("exit", command_exit)
 ];
 
