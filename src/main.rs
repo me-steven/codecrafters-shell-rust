@@ -6,10 +6,11 @@ use std::process::Command;
 
 type CommandFn = fn(args: &mut dyn Iterator<Item = &str>) -> bool;
 
-const COMMAND_MAP: [(&str, CommandFn); 4] = [
+const COMMAND_MAP: [(&str, CommandFn); 5] = [
     ("type", command_type),
     ("echo", command_echo),
     ("pwd", command_pwd),
+    ("cd", command_cd),
     ("exit", command_exit)
 ];
 
@@ -39,22 +40,6 @@ fn find_path(c: &str) -> Option<String> {
     None
 }
 
-fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
-    let tokens: Vec<&str> = args.collect();
-    let c = tokens[0];
-
-    if find_path(c).is_none() {
-        println!("{}: command not found", c);
-        return;
-    }
-
-    Command::new(c)
-    .args(&tokens[1..])
-    .status()
-    .expect("Failed to execute command");
-
-
-}
 
 fn command_exit(_args: &mut dyn Iterator<Item = &str>) -> bool{
     std::process::exit(0);
@@ -78,7 +63,7 @@ fn command_echo(args: &mut dyn Iterator<Item = &str>) -> bool{
     true
 }
 
-fn command_pwd(args: &mut dyn Iterator<Item = &str>) -> bool{
+fn command_pwd(_args: &mut dyn Iterator<Item = &str>) -> bool{
     let status = env::current_dir();
     
     if status.is_ok() {
@@ -88,8 +73,24 @@ fn command_pwd(args: &mut dyn Iterator<Item = &str>) -> bool{
 
     eprintln!("Error getting current directory: {}", status.err().unwrap());
     return false;
-    
- 
+}
+
+fn command_cd(args: &mut dyn Iterator<Item = &str>) -> bool {
+    let target_dir = args.next();
+
+    if target_dir == None {
+        return true;
+    }
+
+    let attempt_change = std::env::set_current_dir(target_dir.unwrap());
+
+    if attempt_change.is_ok() {
+        return true;
+    }
+
+    eprintln!("cd: {}: No such file or directory", target_dir.unwrap());
+
+    return false;
 
 }
 
@@ -117,6 +118,23 @@ fn command_type(args: &mut dyn Iterator<Item = &str>) -> bool{
 
 fn search_commands(c: &str) -> Option<&'static (&'static str, CommandFn)>{
     COMMAND_MAP.iter().find(|&&(name, _)| name == c)
+}
+
+fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
+    let tokens: Vec<&str> = args.collect();
+    let c = tokens[0];
+
+    if find_path(c).is_none() {
+        println!("{}: command not found", c);
+        return;
+    }
+
+    Command::new(c)
+    .args(&tokens[1..])
+    .status()
+    .expect("Failed to execute command");
+
+
 }
 
 fn main() {
