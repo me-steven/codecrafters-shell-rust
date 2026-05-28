@@ -77,6 +77,21 @@ fn command_echo(args: &mut dyn Iterator<Item = &str>) -> bool{
     true
 }
 
+fn command_pwd(args: &mut dyn Iterator<Item = &str>) -> bool{
+    let status = env::current_dir();
+    
+    if status.is_ok() {
+        println!("{}", status.unwrap().display());
+        return true;
+    }
+
+    eprintln!("Error getting current directory: {}", status.err().unwrap());
+    return false;
+    
+ 
+
+}
+
 fn command_type(args: &mut dyn Iterator<Item = &str>) -> bool{
     let command = args.next();
     
