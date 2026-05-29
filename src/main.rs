@@ -40,7 +40,6 @@ fn find_path(c: &str) -> Option<String> {
     None
 }
 
-
 fn command_exit(_args: &mut dyn Iterator<Item = &str>) -> bool{
     std::process::exit(0);
 }
@@ -76,19 +75,28 @@ fn command_pwd(_args: &mut dyn Iterator<Item = &str>) -> bool{
 }
 
 fn command_cd(args: &mut dyn Iterator<Item = &str>) -> bool {
-    let target_dir = args.next();
+    let args = args.next();
 
-    if target_dir == None {
+    if args == None {
         return true;
     }
 
-    let attempt_change = std::env::set_current_dir(target_dir.unwrap());
+    let mut target_dir: String;
+
+    if args.unwrap() == "~" {
+        target_dir = home::home_dir().unwrap().to_str().unwrap().to_string();
+    } else {
+        target_dir = args.unwrap().to_string();
+    }
+
+
+    let attempt_change = std::env::set_current_dir(&target_dir);
 
     if attempt_change.is_ok() {
         return true;
     }
 
-    eprintln!("cd: {}: No such file or directory", target_dir.unwrap());
+    eprintln!("cd: {}: No such file or directory", &target_dir);
 
     return false;
 
