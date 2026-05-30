@@ -14,34 +14,20 @@ const COMMAND_MAP: [(&str, CommandFn); 5] = [
     ("exit", command_exit)
 ];
 
-fn find_path(c: &str) -> Option<String> {
-    if let Some(path_var) = env::var_os("PATH") {
-        for path_dir in env::split_paths(&path_var) {
-            let full_path = path_dir.join(c);
-            if full_path.is_executable() {
-                return Some(full_path.to_string_lossy().into_owned());
-            }
-    
-            if cfg!(windows) {
-                if let Some(pathext_var) = env::var_os("PATHEXT") {
-                    for ext in env::split_paths(&pathext_var) {
-                        let mut path_with_ext = full_path.clone();
-                        let ext_str = ext.to_string_lossy();
-                        path_with_ext.set_extension(ext_str.trim_start_matches('.'));
-                        if path_with_ext.is_executable() {
-                            return Some(path_with_ext.to_string_lossy().into_owned());
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
 fn command_exit(_args: &mut dyn Iterator<Item = &str>) -> bool{
     std::process::exit(0);
+}
+
+fn command_pwd(_args: &mut dyn Iterator<Item = &str>) -> bool{
+    let status = env::current_dir();
+    
+    if status.is_ok() {
+        println!("{}", status.unwrap().display());
+        return true;
+    }
+
+    eprintln!("Error getting current directory: {}", status.err().unwrap());
+    return false;
 }
 
 fn command_echo(args: &mut dyn Iterator<Item = &str>) -> bool{
@@ -62,18 +48,6 @@ fn command_echo(args: &mut dyn Iterator<Item = &str>) -> bool{
     true
 }
 
-fn command_pwd(_args: &mut dyn Iterator<Item = &str>) -> bool{
-    let status = env::current_dir();
-    
-    if status.is_ok() {
-        println!("{}", status.unwrap().display());
-        return true;
-    }
-
-    eprintln!("Error getting current directory: {}", status.err().unwrap());
-    return false;
-}
-
 fn command_cd(args: &mut dyn Iterator<Item = &str>) -> bool {
     let args = args.next();
 
@@ -81,7 +55,7 @@ fn command_cd(args: &mut dyn Iterator<Item = &str>) -> bool {
         return true;
     }
 
-    let mut target_dir: String;
+    let target_dir: String;
 
     if args.unwrap() == "~" {
         target_dir = home::home_dir().unwrap().to_str().unwrap().to_string();
@@ -124,10 +98,6 @@ fn command_type(args: &mut dyn Iterator<Item = &str>) -> bool{
     }
 }
 
-fn search_commands(c: &str) -> Option<&'static (&'static str, CommandFn)>{
-    COMMAND_MAP.iter().find(|&&(name, _)| name == c)
-}
-
 fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
     let tokens: Vec<&str> = args.collect();
     let c = tokens[0];
@@ -145,6 +115,35 @@ fn command_not_found(args: &mut dyn Iterator<Item = &str>) {
 
 }
 
+fn find_path(c: &str) -> Option<String> {
+    if let Some(path_var) = env::var_os("PATH") {
+        for path_dir in env::split_paths(&path_var) {
+            let full_path = path_dir.join(c);
+            if full_path.is_executable() {
+                return Some(full_path.to_string_lossy().into_owned());
+            }
+    
+            if cfg!(windows) {
+                if let Some(pathext_var) = env::var_os("PATHEXT") {
+                    for ext in env::split_paths(&pathext_var) {
+                        let mut path_with_ext = full_path.clone();
+                        let ext_str = ext.to_string_lossy();
+                        path_with_ext.set_extension(ext_str.trim_start_matches('.'));
+                        if path_with_ext.is_executable() {
+                            return Some(path_with_ext.to_string_lossy().into_owned());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
+fn search_commands(c: &str) -> Option<&'static (&'static str, CommandFn)>{
+    COMMAND_MAP.iter().find(|&&(name, _)| name == c)
+}
 fn main() {
     loop {
         let mut input = String::new();
