@@ -1,4 +1,4 @@
-#Codecrafters Shell Rust
+# Codecrafters Shell Rust
 
 Currently working on:
 ["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
